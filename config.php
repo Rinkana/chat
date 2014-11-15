@@ -5,10 +5,13 @@
  * Time: 19:24
  * For:  chat
  */
+
 define("PROJECT_DIR","chat/");
 define("ABS_PATH","/".PROJECT_DIR);
 define("HTTP_PATH","//".$_SERVER['HTTP_HOST'].ABS_PATH);
+define("ROOT_PATH",$_SERVER["DOCUMENT_ROOT"]."/".PROJECT_DIR);
 
-require_once("E:/xampp/htdocs/chat/assets/helpers/class.Database.php");
-$db = new Database(new PDO("sqlite:E:/xampp/htdocs/chat/assets/database/test.sqlite", "", ""));
+require_once(ROOT_PATH."assets/helpers/class.Database.php");
+require_once(ROOT_PATH."assets/helpers/class.Post.php");
+$db = Database::GetInstance(new PDO("sqlite:".ROOT_PATH."assets/database/test.sqlite", "", ""));
 ?> 

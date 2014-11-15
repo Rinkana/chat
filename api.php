@@ -7,59 +7,49 @@
  */
 
 require_once("config.php");
+//Default return values
 $result = array(
-    "success" => true,
     "posts" => array(
-
     ),
     "last_post" => 0
 );
 //Submit post
 if(isset($_POST["new_text"])){
-    $SQL = "
-      INSERT INTO
-        tblPosts
-      VALUES(
-        null,
-        :poster,
-        :text,
-        :date
-      )";
 
-    $values = array(
-        substr(md5($_SERVER["REMOTE_ADDR"]),0, 10),
-        $_POST["new_text"],
-        date("Y/m/d H:i")
-    );
+    $newPost = new Post();
 
-    $db->Insert($SQL,$values);
+    $newPost->setPoster(substr(md5($_SERVER["REMOTE_ADDR"]),0, 10));
+    $newPost->setText($_POST["new_text"]);
+    $newPost->setDate(date("Y/m/d H:i"));
+
+    $newPost->insert();
 }
 
 //Get post(s)
 if(isset($_POST["last_post"])){
-    $SQL = "SELECT * FROM tblPosts";
 
+    //Set the return last post to the current one so we will not get dupelicates when there are no new posts
     $result["last_post"] = $_POST["last_post"];
 
-    $aValues = array();
-
     if(is_numeric($_POST["last_post"]) && $_POST["last_post"] > 0){
-        $SQL .= " WHERE ID > :ID";
-        $aValues[] = $_POST["last_post"];
+        $posts = Post::loadFromID($_POST["last_post"]);//Load posts that start from this id
     }else{
-        $SQL .= " LIMIT 10 ";
+        $posts = Post::loadFromID(0, 10); //Get the last 10 posts
     }
 
-    $posts = $db->FetchArray($SQL,$aValues);
-
     if($posts && is_array($posts) && count($posts) > 0){
-        $result["posts"] = $posts;
-
-        $lastPost = end($posts);
-        $result["last_post"] = $lastPost["ID"];
+        //loop trough each post to make it useable
+        foreach($posts as $post){
+            $result["posts"][] = array(
+                "poster" => $post->getPoster(),
+                "text" => $post->getText(),
+                "date" => $post->getDate(),
+            );
+            $result["last_post"] = $post->getID(); //Set the last post to the current ID
+        }
     }
 
 }
 
-echo json_encode($result);
+echo json_encode($result); //Return result
 ?>

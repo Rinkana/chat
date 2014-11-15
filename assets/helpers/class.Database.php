@@ -6,7 +6,10 @@
  * @Author: Max Berends
  */
 class Database {
+    private static $instance;
+
     private $oConnection; //Private connection string, will be used for PDO
+
     public function __construct($connection) {
         //When the class is loaded we check if the config is already loaded.
         //We check again
@@ -84,6 +87,22 @@ class Database {
             $aPDOError = $oPreparedQuery->errorInfo();
             throw new Exception($aPDOError[2],$aPDOError[1]); //Yes? Throw exception
         }
+    }
+
+    public static function GetInstance($connection = null){
+        //get connection
+        if(empty(self::$instance) && !is_null($connection)){
+            //connection is not set but we can try to connect
+            self::$instance = new Database($connection);
+            return self::$instance;
+        }elseif(!empty(self::$instance) && is_null($connection)){
+            //We already have an instance so set that
+            return self::$instance;
+        }else{
+            throw new Exception("Unable to connect");
+        }
+
+
     }
 
 }

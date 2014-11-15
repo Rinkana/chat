@@ -58,7 +58,6 @@ require_once("config.php");
     </style>
 </head>
 <body>
-
     Uw ID: <?= substr(md5($_SERVER["REMOTE_ADDR"]),0, 10) ?><br/>
     <ul id="posts">
 
